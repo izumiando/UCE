@@ -138,12 +138,12 @@ class AnndataProcessor:
                 with open(self.starts_path, "wb+") as f:
                     pickle.dump({self.name: dataset_pos}, f)
 
-    def run_evaluation(self):
+    def run_evaluation(self, save_file):
         self.accelerator.wait_for_everyone()
         with open(self.shapes_dict_path, "rb") as f:
             shapes_dict = pickle.load(f)
         run_eval(self.adata, self.name, self.pe_idx_path, self.chroms_path,
-                 self.starts_path, shapes_dict, self.accelerator, self.args)
+                 self.starts_path, shapes_dict, self.accelerator, self.args, save_file=save_file)
 
 
 def get_ESM2_embeddings(args):
@@ -181,7 +181,7 @@ def padding_tensor(sequences):
 
 
 def run_eval(adata, name, pe_idx_path, chroms_path, starts_path, shapes_dict,
-             accelerator, args):
+             accelerator, args, save_file=True):
 
     #### Set up the model ####
     token_dim = args.token_dim
@@ -252,8 +252,12 @@ def run_eval(adata, name, pe_idx_path, chroms_path, starts_path, shapes_dict,
     if accelerator.is_main_process:
         dataset_embeds = np.vstack(dataset_embeds)
         adata.obsm["X_uce"] = dataset_embeds
-        write_path = args.dir + f"{name}_uce_adata.h5ad"
-        adata.write(write_path)
+        # modifications by Izumi
+        if (save_file==False):
+            return adata
+        else:
+            write_path = args.dir + f"{name}_uce_adata.h5ad"
+            adata.write(write_path)
 
-        print("*****Wrote Anndata to:*****")
-        print(write_path)
+            print("*****Wrote Anndata to:*****")
+            print(write_path)
