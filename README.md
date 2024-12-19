@@ -1,4 +1,4 @@
-# Universal Cell Embeddings
+# Universal Cell Embeddings - modified for Iniquitate
 
 This repo includes a PyTorch [HuggingFace Accelerator](https://huggingface.co/docs/accelerate/package_reference/accelerator) implementation of the UCE model, to be used to embed individual anndata datasets.
 
